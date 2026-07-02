@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Vibes Events — Live Project Calendar 2026</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+body { background: #f4f6f9; padding: 16px; }
+h2 { color: #1a1a2e; margin-bottom: 4px; font-size: 18px; }
+.subtitle { color: #666; font-size: 12px; margin-bottom: 12px; }
+.controls { background: white; border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { padding: 6px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn-nav { background: #3498db; color: white; }
+.btn-refresh { background: #27ae60; color: white; }
+.month-label { font-size: 13px; font-weight: 700; color: #1a1a2e; min-width: 160px; text-align: center; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+.legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+.status-bar { background: #e8f4fd; border: 1px solid #bee3f8; border-radius: 8px; padding: 8px 14px; font-size: 12px; color: #2176ae; margin-bottom: 12px; }
+.calendar-wrap { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow-x: auto; }
+table { border-collapse: collapse; min-width: 900px; width: 100%; }
+.header-row th { background: #1a1a2e; color: white; padding: 6px 3px; font-size: 11px; text-align: center; border-right: 1px solid #2d2d4e; min-width: 28px; position: sticky; top: 0; z-index: 20; }
+.header-row th:first-child { text-align: left; padding-left: 10px; min-width: 190px; position: sticky; left: 0; z-index: 30; }
+.header-row th.today-col { background: #e67e22; }
+.header-row th.weekend-col { background: #2d2d4e; }
+.month-row td { background: #e8eaf0; color: #333; font-size: 10px; font-weight: 700; text-align: center; padding: 3px; border-right: 1px solid #d0d4e0; position: sticky; top: 50px; z-index: 20; }
+.month-row td:first-child { text-align: left; padding-left: 10px; position: sticky; left: 0; z-index: 25; background: #e8eaf0; }
+.division-row td { background: #f0f2f8; font-weight: 700; font-size: 12px; padding: 6px 10px; color: #1a1a2e; border-top: 2px solid #dde1eb; }
+.division-row td:first-child { position: sticky; left: 0; z-index: 5; }
+tr.project-row td { border-bottom: 1px solid #f0f2f7; }
+tr.project-row:hover td { background: #f5f7ff; }
+.project-name-cell { padding: 4px 10px; color: #333; font-size: 11px; white-space: nowrap; min-width: 190px; position: sticky; left: 0; background: white; z-index: 5; }
+.incharge { font-size: 10px; color: #999; font-style: italic; }
+.city-badge { display: inline-block; background: #eef0f8; color: #555; border-radius: 10px; padding: 1px 7px; font-size: 10px; margin-left: 4px; }
+.day-cell { padding: 2px; text-align: center; border-right: 1px solid #f0f2f7; position: relative; min-width: 28px; height: 32px; vertical-align: middle; }
+.day-cell.today-day { background: #fff8f0; border-right: 2px solid #e67e22; }
+.day-cell.weekend-day { background: #fafafa; }
+.bar { height: 20px; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px; font-weight: 700; white-space: nowrap; overflow: hidden; padding: 0 3px; cursor: pointer; }
+.bar:hover { opacity: 0.8; }
+.bar-start { border-radius: 10px 2px 2px 10px; }
+.bar-end { border-radius: 2px 10px 10px 2px; }
+.bar-single { border-radius: 10px; }
+.overlap-dot { position: absolute; top: 1px; right: 1px; width: 6px; height: 6px; background: #e74c3c; border-radius: 50%; }
+.tooltip { position: fixed; background: #1a1a2e; color: white; padding: 8px 12px; border-radius: 8px; font-size: 11px; pointer-events: none; z-index: 9999; display: none; line-height: 1.8; box-shadow: 0 4px 16px rgba(0,0,0,0.3); max-width: 300px; }
+.filter-select { padding: 5px 9px; border: 1px solid #dde; border-radius: 6px; font-size: 12px; }
+.loading { text-align: center; padding: 40px; color: #888; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h2>📅 Vibes Events — Live Project Calendar 2026</h2>
+<p class="subtitle">Data loads live from Google Sheets — refresh anytime to see latest updates</p>
+
+<div class="controls">
+  <button class="btn btn-nav" onclick="shiftMonth(-1)">◀ Prev</button>
+  <span class="month-label" id="monthLabel"></span>
+  <button class="btn btn-nav" onclick="shiftMonth(1)">Next ▶</button>
+  <button class="btn btn-refresh" onclick="loadData()">🔄 Refresh Data</button>
+  <select class="filter-select" id="filterDiv" onchange="render()">
+    <option value="ALL">All Divisions</option>
+    <option value="FOH AUH">FOH AUH</option>
+    <option value="FOH DXB">FOH DXB</option>
+    <option value="HO">HO</option>
+    <option value="Hospitality">Hospitality</option>
+    <option value="TA">TA</option>
+  </select>
+</div>
+
+<div class="status-bar" id="statusBar">⏳ Loading project data from Google Sheets...</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#3498db"></div> FOH AUH</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div> FOH DXB</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#27ae60"></div> HO</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e67e22"></div> Hospitality</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#c0392b"></div> TA</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e74c3c; border-radius:50%"></div> Overlap</div>
+</div>
+
+<div class="calendar-wrap"><div class="loading" id="loadingMsg">Loading...</div><table id="calTable" style="display:none"></table></div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const SHEET_ID = '1ycfcvI8hRZvhYFLYp8Qexe0Jrkg3RHw9WlZ5BvUV6xg';
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
+
+const COLORS = { 'FOH AUH':'#3498db','FOH DXB':'#9b59b6','HO':'#27ae60','Hospitality':'#e67e22','TA':'#c0392b' };
+const DIVISIONS = ['FOH AUH','FOH DXB','HO','Hospitality','TA'];
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+
+let viewStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+let projects = [];
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].match(/(".*?"|[^,]+)(?=,|$)/g) || [];
+    const row = {};
+    headers.forEach((h, j) => { row[h] = (vals[j]||'').replace(/"/g,'').trim(); });
+    rows.push(row);
+  }
+  return rows;
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  const parts = str.split('/');
+  if (parts.length === 3) {
+    return new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+  }
+  return null;
+}
+
+async function loadData() {
+  document.getElementById('statusBar').textContent = '⏳ Refreshing data from Google Sheets...';
+  document.getElementById('loadingMsg').style.display = 'block';
+  document.getElementById('calTable').style.display = 'none';
+  try {
+    const res = await fetch(SHEET_URL);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    projects = rows.filter(r => r['Division'] && r['Project Name'] && r['Start Date']).map(r => ({
+      div: r['Division'].trim(),
+      name: r['Project Name'].trim(),
+      city: r['City'] || '',
+      venue: r['Venue'] || '',
+      org: r['Organizer'] || '',
+      s: parseDate(r['Start Date']),
+      e: parseDate(r['End Date']),
+      ic: r['Project Incharge'] || '',
+      onsite: r['Onsite Incharge'] || '',
+      status: r['Status'] || 'Confirmed',
+      notes: r['Notes'] || ''
+    })).filter(p => p.s && p.e);
+    const now = new Date().toLocaleString('en-GB');
+    document.getElementById('statusBar').textContent = `✅ ${projects.length} projects loaded — Last updated: ${now}. Any changes in Google Sheets appear after refresh.`;
+    document.getElementById('loadingMsg').style.display = 'none';
+    document.getElementById('calTable').style.display = '';
+    render();
+  } catch(err) {
+    document.getElementById('statusBar').textContent = '❌ Could not load data. Make sure the Google Sheet is shared as "Anyone with link can view". Error: ' + err.message;
+    document.getElementById('loadingMsg').textContent = 'Failed to load data. Check sharing settings.';
+  }
+}
+
+function dk(d){ return d instanceof Date ? d.toISOString().split('T')[0] : ''; }
+
+function getDays(){
+  const days=[];
+  const end = new Date(viewStart.getFullYear(), viewStart.getMonth()+2, 0);
+  for(let d=new Date(viewStart); d<=end; d.setDate(d.getDate()+1)) days.push(new Date(d));
+  return days;
+}
+
+function updateMonthLabel(){
+  const end = new Date(viewStart.getFullYear(), viewStart.getMonth()+1, 1);
+  document.getElementById('monthLabel').textContent =
+    viewStart.toLocaleString('default',{month:'long',year:'numeric'}) + ' – ' +
+    end.toLocaleString('default',{month:'long',year:'numeric'});
+}
+
+function shiftMonth(n){ viewStart.setMonth(viewStart.getMonth()+n); render(); }
+
+function render(){
+  if(!projects.length) return;
+  updateMonthLabel();
+  const days = getDays();
+  const filterDiv = document.getElementById('filterDiv').value;
+  const table = document.getElementById('calTable');
+  table.innerHTML='';
+  const activeDivs = filterDiv==='ALL' ? DIVISIONS : [filterDiv];
+
+  const overlapMap={};
+  activeDivs.forEach(div=>{
+    const dp = projects.filter(p=>p.div===div && p.status!=='Cancelled');
+    days.forEach(day=>{
+      if(dp.filter(p=>day>=p.s&&day<=p.e).length>1) overlapMap[div+'_'+dk(day)]=true;
+    });
+  });
+
+  // Header
+  const hRow=table.insertRow(); hRow.className='header-row';
+  const hTh=document.createElement('th'); hTh.textContent='Project / Incharge'; hRow.appendChild(hTh);
+  days.forEach(day=>{
+    const th=document.createElement('th');
+    th.innerHTML=`<div style="font-size:11px;font-weight:700;line-height:1.1">${day.getDate()}</div><div style="font-size:9px;font-weight:400;opacity:0.8">${day.toLocaleString('default',{weekday:'short'}).toUpperCase()}</div>`;
+    if(dk(day)===dk(TODAY)) th.className='today-col';
+    else if(day.getDay()===5||day.getDay()===6) th.className='weekend-col';
+    hRow.appendChild(th);
+  });
+
+  // Month row
+  const mRow=table.insertRow(); mRow.className='month-row';
+  const mTd=document.createElement('td'); mTd.textContent=''; mRow.appendChild(mTd);
+  days.forEach(day=>{
+    const td=document.createElement('td');
+    if(day.getDate()===1) td.textContent=day.toLocaleString('default',{month:'long'}).toUpperCase();
+    mRow.appendChild(td);
+  });
+
+  activeDivs.forEach(div=>{
+    const divProjs=projects.filter(p=>p.div===div&&p.status!=='Cancelled');
+    if(!divProjs.length) return;
+
+    const dRow=table.insertRow(); dRow.className='division-row';
+    const dtd=document.createElement('td'); dtd.colSpan=days.length+1;
+    dtd.innerHTML=`<span style="color:${COLORS[div]||'#888'}">●</span>&nbsp; ${div} <span style="font-weight:400;font-size:11px;color:#888">(${divProjs.length} projects)</span>`;
+    dRow.appendChild(dtd);
+
+    divProjs.forEach(proj=>{
+      const row=table.insertRow(); row.className='project-row';
+      const nc=document.createElement('td'); nc.className='project-name-cell';
+      const dot=proj.status==='Tentative'?' 🟡':proj.status==='Cancelled'?' 🔴':'';
+      nc.innerHTML=`${proj.name}${dot} <span class="city-badge">${proj.city}</span><br><span class="incharge">👤 ${proj.ic||'—'} &nbsp;|&nbsp; 🎯 ${proj.onsite||'—'}</span>`;
+      row.appendChild(nc);
+
+      days.forEach(day=>{
+        const cell=document.createElement('td');
+        cell.className='day-cell'+(dk(day)===dk(TODAY)?' today-day':'')+(day.getDay()===5||day.getDay()===6?' weekend-day':'');
+        const inRange=day>=proj.s&&day<=proj.e;
+        if(inRange){
+          const isStart=dk(day)===dk(proj.s);
+          const isEnd=dk(day)===dk(proj.e);
+          const isSingle=dk(proj.s)===dk(proj.e);
+          const bar=document.createElement('div');
+          bar.className='bar '+(isSingle?'bar-single':isStart?'bar-start':isEnd?'bar-end':'');
+          bar.style.background=COLORS[proj.div]||'#888';
+          if(proj.status==='Tentative') bar.style.opacity='0.5';
+          if(isStart||isSingle) bar.textContent=proj.ic||'';
+          if(overlapMap[div+'_'+dk(day)]){
+            const dot=document.createElement('div'); dot.className='overlap-dot'; cell.appendChild(dot);
+          }
+          bar.onmouseenter=e=>{
+            const t=document.getElementById('tooltip');
+            t.innerHTML=`<strong>${proj.name}</strong><br>📍 ${proj.city} &nbsp;|&nbsp; 🏟 ${proj.venue}<br>🏢 ${proj.org}<br>📅 ${dk(proj.s)} → ${dk(proj.e)}<br>👤 Incharge: ${proj.ic||'—'}<br>🎯 Onsite: ${proj.onsite||'—'}<br>Status: ${proj.status}${proj.notes?'<br>📝 '+proj.notes:''}`;
+            t.style.display='block';
+          };
+          bar.onmousemove=e=>{ const t=document.getElementById('tooltip'); t.style.left=(e.clientX+14)+'px'; t.style.top=(e.clientY-10)+'px'; };
+          bar.onmouseleave=()=>{ document.getElementById('tooltip').style.display='none'; };
+          cell.appendChild(bar);
+        }
+        row.appendChild(cell);
+      });
+    });
+  });
+}
+
+loadData();
+</script>
+</body>
+</html>
