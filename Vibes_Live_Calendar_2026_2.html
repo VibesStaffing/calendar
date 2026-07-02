@@ -38,7 +38,14 @@ const DIVISIONS=['FOH AUH','FOH DXB','HO','Hospitality','TA'];
 const TODAY=new Date();TODAY.setHours(0,0,0,0);
 let viewStart=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
 let projects=[];
-function parseDate(s){if(!s)return null;if(s instanceof Date)return s;s=String(s).trim();let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);const d=new Date(s);return isNaN(d)?null:d;}
+function parseDate(s){
+  if(!s) return null;
+  s = String(s).trim();
+  var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return new Date(+m[3], +m[2]-1, +m[1]);
+  var d = new Date(s);
+  return isNaN(d) ? null : d;
+}
 async function loadData(){
   document.getElementById('statusBar').textContent='Loading...';
   document.getElementById('loadingMsg').style.display='block';
