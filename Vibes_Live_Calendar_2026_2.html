@@ -250,6 +250,7 @@ async function doExportExcel(){
     const row=ws.getRow(rIdx);
     let label=p.name+' | '+(p.city||'')+(p.org?(' - '+p.org):'')+(p.pn?(' - P.N:'+p.pn):'');
     label+='\n'+(p.ic||'-')+' | '+(p.assist||'-');
+    label+='\nStaff: '+(p.staff||0)+' | Sup: '+(p.sup||0);
     const c1=row.getCell(1);
     c1.value=label;
     c1.alignment={wrapText:true,vertical:'middle'};
