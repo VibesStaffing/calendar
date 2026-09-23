@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Vibes Events - Live Project Calendar 2026</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif}body{background:#f4f6f9;padding:16px}h2{color:#1a1a2e;font-size:18px;margin-bottom:4px}.subtitle{color:#666;font-size:12px;margin-bottom:12px}.controls{background:white;border-radius:10px;padding:12px 16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;flex-wrap:wrap;gap:10px;align-items:center}.btn{padding:6px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}.btn-nav{background:#3498db;color:white}.btn-refresh{background:#27ae60;color:white}.month-label{font-size:13px;font-weight:700;color:#1a1a2e;min-width:160px;text-align:center}.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}.legend-dot{width:14px;height:14px;border-radius:3px}.status-bar{background:#e8f4fd;border:1px solid #bee3f8;border-radius:8px;padding:8px 14px;font-size:12px;color:#2176ae;margin-bottom:12px}.calendar-wrap{background:white;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow-x:auto;overflow-y:auto;max-height:70vh}table{border-collapse:collapse;min-width:900px;width:100%}.header-row th{background:#1a1a2e;color:white;padding:6px 3px;font-size:11px;text-align:center;border-right:1px solid #2d2d4e;min-width:28px;position:sticky;top:0;z-index:20}.header-row th:first-child{text-align:left;padding-left:10px;min-width:200px;position:sticky;left:0;z-index:30}.header-row th.today-col{background:#e67e22}.header-row th.weekend-col{background:#2d2d4e}.month-row td{background:#e8eaf0;color:#333;font-size:10px;font-weight:700;text-align:center;padding:3px;border-right:1px solid #d0d4e0;position:sticky;top:39px;z-index:20}.month-row td:first-child{text-align:left;padding-left:10px;position:sticky;left:0;z-index:25;background:#e8eaf0}.division-row td{background:#f0f2f8;font-weight:700;font-size:12px;padding:6px 10px;color:#1a1a2e;border-top:2px solid #dde1eb}.division-row td:first-child{position:static}.division-label{position:sticky;left:0;z-index:5;background:#f0f2f8;padding:6px 10px;display:inline-block;white-space:nowrap}tr.project-row td{border-bottom:1px solid #f0f2f7}tr.project-row:hover td{background:#f5f7ff}.project-name-cell{padding:4px 10px;color:#333;font-size:11px;white-space:nowrap;min-width:200px;position:sticky;left:0;background:white;z-index:5}.incharge{font-size:10px;color:#999;font-style:italic}.city-badge{display:inline-block;background:#eef0f8;color:#555;border-radius:10px;padding:1px 7px;font-size:10px;margin-left:4px}.day-cell{padding:2px;text-align:center;border-right:1px solid #f0f2f7;position:relative;min-width:28px;height:32px;vertical-align:middle}.day-cell.today-day{background:#fff8f0;border-right:2px solid #e67e22}.day-cell.weekend-day{background:#fafafa}.day-cell.selected-col{background:#dbe4ff}.header-row th.selected-col{background:#3b5bdb}.bar{height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;padding:0 3px;cursor:pointer}.bar:hover{opacity:.8}.bar-start{border-radius:10px 2px 2px 10px}.bar-end{border-radius:2px 10px 10px 2px}.bar-single{border-radius:10px}.overlap-dot{position:absolute;top:1px;right:1px;width:6px;height:6px;background:#e74c3c;border-radius:50%}.tooltip{position:fixed;background:#1a1a2e;color:white;padding:8px 12px;border-radius:8px;font-size:11px;pointer-events:none;z-index:9999;display:none;line-height:1.8;box-shadow:0 4px 16px rgba(0,0,0,.3);max-width:300px}.filter-select{padding:5px 9px;border:1px solid #dde;border-radius:6px;font-size:12px}.loading{text-align:center;padding:40px;color:#888;font-size:14px}
+.multi-select{position:relative;display:inline-block;}
+.multi-select-btn{cursor:pointer;text-align:left;min-width:140px;}
+.multi-select-menu{display:none;position:absolute;top:100%;left:0;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.15);padding:6px 0;z-index:50;min-width:180px;max-height:260px;overflow-y:auto;}
+.multi-select-menu.open{display:block;}
+.multi-select-menu label{display:block;padding:5px 12px;font-size:13px;cursor:pointer;white-space:nowrap;}
+.multi-select-menu label:hover{background:#f0f4f8;}
+.multi-select-menu input{margin-right:6px;}
+
+.btn-export{background:#8e44ad;color:white;}
+.export-panel{display:none;align-items:center;gap:10px;background:white;border-radius:10px;padding:12px 16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);flex-wrap:wrap;}
+.export-panel label{font-size:12px;color:#333;display:flex;align-items:center;gap:5px;}
+.export-panel input[type=date]{padding:5px 8px;border:1px solid #dde;border-radius:6px;font-size:12px;}
+.export-panel .btn-cancel{background:#ccc;color:#333;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+</head><body>
+<h2>Vibes Events - Live Project Calendar 2026</h2>
+<p class="subtitle">Data loads live from Google Sheets - refresh anytime to see latest updates</p>
+<div class="controls">
+<button class="btn btn-nav" onclick="shiftMonth(-1)">Prev</button>
+<span class="month-label" id="monthLabel"></span>
+<button class="btn btn-nav" onclick="shiftMonth(1)">Next</button>
+<button class="btn btn-refresh" onclick="loadData()">Refresh Data</button>
+<button class="btn btn-export" onclick="toggleExportPanel()">Export Excel</button>
+<div class="multi-select" id="divFilterWrap">
+<button type="button" class="btn filter-select multi-select-btn" id="divFilterBtn" onclick="toggleDropdown('divFilterMenu')">All Divisions</button>
+<div class="multi-select-menu" id="divFilterMenu">
+<label><input type="checkbox" value="ALL" checked onchange="onMultiCheck(this,'divFilterMenu','divFilterBtn','All Divisions')"> All Divisions</label>
+<label><input type="checkbox" value="FOH AUH" onchange="onMultiCheck(this,'divFilterMenu','divFilterBtn','All Divisions')"> FOH AUH</label>
+<label><input type="checkbox" value="FOH DXB" onchange="onMultiCheck(this,'divFilterMenu','divFilterBtn','All Divisions')"> FOH DXB</label>
+<label><input type="checkbox" value="HO" onchange="onMultiCheck(this,'divFilterMenu','divFilterBtn','All Divisions')"> HO</label>
+<label><input type="checkbox" value="Hospitality" onchange="onMultiCheck(this,'divFilterMenu','divFilterBtn','All Divisions')"> Hospitality</label>
+<label><input type="checkbox" value="TA" onchange="onMultiCheck(this,'divFilterMenu','divFilterBtn','All Divisions')"> TA</label>
+</div>
+</div>
+<select class="filter-select" id="filterCat" onchange="render()">
+<option value="ALL">All Categories</option>
+<option value="LT">Long Term</option>
+<option value="OTHER">Others</option>
+</select>
+  <div class="multi-select" id="mgrFilterWrap">
+  <button type="button" class="btn filter-select multi-select-btn" id="mgrFilterBtn" onclick="toggleDropdown('mgrFilterMenu')">All Managers</button>
+  <div class="multi-select-menu" id="mgrFilterMenu">
+  <label><input type="checkbox" value="ALL" checked onchange="onMultiCheck(this,'mgrFilterMenu','mgrFilterBtn','All Managers')"> All Managers</label>
+  </div>
+  </div><select class="filter-select" id="viewMode" onchange="render()"><option value="SECTION">By Section</option><option value="DATE">By Date</option>
+  </select>
+</div>
+<div class="export-panel" id="exportPanel">
+<label>From <input type="date" id="exportFrom"></label>
+<label>To <input type="date" id="exportTo"></label>
+<button class="btn btn-refresh" onclick="doExportExcel()">Download</button>
+<button class="btn btn-cancel" onclick="toggleExportPanel()">Cancel</button>
+</div>
+<div class="status-bar" id="statusBar">Loading...</div>
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:#3498db"></div>FOH AUH</div>
+<div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div>FOH DXB</div>
+<div class="legend-item"><div class="legend-dot" style="background:#27ae60"></div>HO</div>
+<div class="legend-item"><div class="legend-dot" style="background:#e67e22"></div>Hospitality</div>
+<div class="legend-item"><div class="legend-dot" style="background:#c0392b"></div>TA</div>
+</div>
+<div class="calendar-wrap">
+<div class="loading" id="loadingMsg">Loading projects...</div>
+<table id="calTable" style="display:none"></table>
+</div>
+<div class="tooltip" id="tooltip"></div>
+<script>
+const API='https://script.google.com/macros/s/AKfycbxKRFMMG9aBd9sGKllg5nR6jnw_dtPAqM8aDtNMjNMxVvxqt1QiLWtnrA0wt5n9pxxA/exec';
+const COLORS={'FOH AUH':'#3498db','FOH DXB':'#9b59b6','HO':'#27ae60','Hospitality':'#e67e22','TA':'#c0392b'};
+const DIVISIONS=['FOH AUH','FOH DXB','HO','Hospitality','TA'];
+const TODAY=new Date();TODAY.setHours(0,0,0,0);
+let viewStart=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);
+let projects=[];let selectedCol=null;
+function parseDate(s){
+  if(!s) return null;
+  s = String(s).trim();
+  var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return new Date(+m[3], +m[2]-1, +m[1]);
+  var d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+async function loadData(){
+  document.getElementById('statusBar').textContent='Loading...';
+  document.getElementById('loadingMsg').style.display='block';
+  document.getElementById('calTable').style.display='none';
+  try{
+    const res=await fetch(API);
+    const data=await res.json();
+    projects=data.filter(r=>r['Division']&&r['Project Name']).map(r=>{
+      const s=parseDate(r['Start Date']),e=parseDate(r['End Date']);
+      if(!s||!e)return null;
+      return{div:String(r['Division']).trim(),name:String(r['Project Name']).trim(),city:r['City']||'',venue:r['Venue']||'',org:r['Organizer']||'',s,e,ic:r['Project Incharge']||'',onsite:r['Onsite Incharge']||'',aassist:r['Project Assistant']||'',staff:r['No. Staff'],sup:r['No. Supervisors'],pn:r['Project Number'],status:r['Status']||'Confirmed',notes:r['Notes']||'',cat:r['Category']||''};
+    }).filter(Boolean);
+    const mgrMenu=document.getElementById('mgrFilterMenu');const prevChecked=[...mgrMenu.querySelectorAll('input[type=checkbox]:checked')].map(b=>b.value);const mgrs=[...new Set(projects.map(p=>p.ic).filter(Boolean))].sort();mgrMenu.innerHTML='';const allLab=document.createElement('label');const allCb=document.createElement('input');allCb.type='checkbox';allCb.value='ALL';allCb.onchange=function(){onMultiCheck(this,'mgrFilterMenu','mgrFilterBtn','All Managers');};allLab.appendChild(allCb);allLab.appendChild(document.createTextNode(' All Managers'));mgrMenu.appendChild(allLab);mgrs.forEach(m=>{const lab=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.value=m;cb.onchange=function(){onMultiCheck(this,'mgrFilterMenu','mgrFilterBtn','All Managers');};lab.appendChild(cb);lab.appendChild(document.createTextNode(' '+m));mgrMenu.appendChild(lab);});const validPrev=prevChecked.filter(v=>v==='ALL'||mgrs.includes(v));if(validPrev.length&&!validPrev.includes('ALL')){allCb.checked=false;validPrev.forEach(v=>{const box=[...mgrMenu.querySelectorAll('input[type=checkbox]')].find(b=>b.value===v);if(box)box.checked=true;});}else{allCb.checked=true;}updateMultiLabel('mgrFilterMenu','mgrFilterBtn','All Managers');document.getElementById('statusBar').textContent=projects.length+' projects loaded - '+new Date().toLocaleString('en-GB');
+    document.getElementById('loadingMsg').style.display='none';
+    document.getElementById('calTable').style.display='';
+    render();
+  }catch(err){document.getElementById('statusBar').textContent='Error: '+err.message;}
+}
+function dk(d){return d instanceof Date?d.toISOString().split('T')[0]:'';}function dkLocal(d){return d instanceof Date?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'):'';}
+function getDays(){const days=[],end=new Date(viewStart.getFullYear(),viewStart.getMonth()+2,0);for(let d=new Date(viewStart);d<=end;d.setDate(d.getDate()+1))days.push(new Date(d));return days;}
+function updateMonthLabel(){const m2=new Date(viewStart.getFullYear(),viewStart.getMonth()+1,1);document.getElementById('monthLabel').textContent=viewStart.toLocaleString('default',{month:'long',year:'numeric'})+' - '+m2.toLocaleString('default',{month:'long',year:'numeric'});}
+function shiftMonth(n){viewStart.setMonth(viewStart.getMonth()+n);render();}
+function render(){if(!projects.length)return;updateMonthLabel();const days=getDays(),selectedDivs=getMultiValues('divFilterMenu'),filterCat=document.getElementById('filterCat').value,selectedMgrs=getMultiValues('mgrFilterMenu'),viewMode=document.getElementById('viewMode').value,table=document.getElementById('calTable');table.innerHTML='';const matchCat=p=>{if(filterCat==='ALL')return true;const isLT=/long[\s_]*term/i.test(p.cat||'');return filterCat==='LT'?isLT:!isLT;};const matchMgr=p=>selectedMgrs.includes('ALL')||selectedMgrs.includes(p.ic);const activeDivs=selectedDivs.includes('ALL')?DIVISIONS:DIVISIONS.filter(d=>selectedDivs.includes(d));const om={};activeDivs.forEach(div=>{const dp=projects.filter(p=>p.div===div&&p.status!=='Cancelled'&&p.e>=viewStart&&p.s<=days[days.length-1]&&matchCat(p)&&matchMgr(p));days.forEach(day=>{if(dp.filter(p=>day>=p.s&&day<=p.e).length>1)om[div+'_'+dk(day)]=true;});});const hRow=table.insertRow();hRow.className='header-row';const hTh=document.createElement('th');hTh.textContent='Project / Incharge';hRow.appendChild(hTh);days.forEach(day=>{const th=document.createElement('th');th.innerHTML='<div style="font-size:11px;font-weight:700">'+day.getDate()+'</div><div style="font-size:9px;opacity:0.8">'+day.toLocaleString('default',{weekday:'short'}).toUpperCase()+'</div>';if(dk(day)===dk(TODAY))th.className='today-col';else if(day.getDay()===5||day.getDay()===6)th.className='weekend-col';if(dk(day)===selectedCol)th.className+=' selected-col';th.style.cursor='pointer';th.onclick=function(){selectedCol=(selectedCol===dk(day))?null:dk(day);render();};hRow.appendChild(th);});const mRow=table.insertRow();mRow.className='month-row';const mTd=document.createElement('td');mTd.textContent='';mRow.appendChild(mTd);days.forEach(day=>{const td=document.createElement('td');if(day.getDate()===1)td.textContent=day.toLocaleString('default',{month:'long'}).toUpperCase();mRow.appendChild(td);});(viewMode==='DATE'?[activeDivs[0]]:activeDivs).forEach(div=>{let dp;if(viewMode==='DATE'){dp=[];activeDivs.forEach(dv=>{dp=dp.concat(projects.filter(p=>p.div===dv&&p.status!=='Cancelled'&&p.e>=viewStart&&p.s<=days[days.length-1]&&matchCat(p)&&matchMgr(p)));});dp.sort((a,b)=>a.s-b.s||a.e-b.e);}else{dp=projects.filter(p=>p.div===div&&p.status!=='Cancelled'&&p.e>=viewStart&&p.s<=days[days.length-1]&&matchCat(p)&&matchMgr(p));dp.sort((a,b)=>a.s-b.s||a.e-b.e);}if(!dp.length)return;if(viewMode!=='DATE'){const dRow=table.insertRow();dRow.className='division-row';const dtd=document.createElement('td');dtd.colSpan=days.length+1;dtd.innerHTML='<div class="division-label"><span style="color:'+(COLORS[div]||'#888')+'">&#9679;</span> '+div+' <span style="font-weight:400;font-size:11px;color:#888">('+dp.length+' projects)</span></div>';dRow.appendChild(dtd);}dp.forEach(proj=>{const row=table.insertRow();row.className='project-row';const nc=document.createElement('td');nc.className='project-name-cell';nc.innerHTML=proj.name+' <span class="city-badge">'+proj.city+(proj.venue?' &#183; '+proj.venue:'')+(proj.org?' &#183; '+proj.org:'')+(proj.pn?' &#183; P.N: '+proj.pn:'')+'</span><br><span class="incharge">'+(proj.ic||'-')+' | '+(proj.assist||'-')+'</span>';row.appendChild(nc);days.forEach(day=>{const cell=document.createElement('td');cell.className='day-cell'+(dk(day)===dk(TODAY)?' today-day':'')+(day.getDay()===5||day.getDay()===6?' weekend-day':'')+(dk(day)===selectedCol?' selected-col':'');if(day>=proj.s&&day<=proj.e){const iS=dk(day)===dk(proj.s),iE=dk(day)===dk(proj.e),iSi=dk(proj.s)===dk(proj.e);const bar=document.createElement('div');bar.className='bar '+(iSi?'bar-single':iS?'bar-start':iE?'bar-end':'');bar.style.background=(proj.ic&&proj.ic.trim().toLowerCase()==='samir')?'#f1c40f':(COLORS[proj.div]||'#888');if(iS||iSi)bar.textContent=proj.ic||'';if(om[div+'_'+dk(day)]){const dot=document.createElement('div');dot.className='overlap-dot';cell.appendChild(dot);}bar.onmouseenter=function(e){const t=document.getElementById('tooltip');t.innerHTML='<strong>'+proj.name+'</strong><br>'+proj.city+' | '+proj.venue+(proj.pn?' | P.N: '+proj.pn:'')+'<br>'+proj.org+'<br>'+dkLocal(proj.s)+' to '+dkLocal(proj.e)+'<br>'+(proj.ic||'-')+' | '+(proj.assist||'-')+'<br>Staff: '+(proj.staff!=null&&proj.staff!==''?proj.staff:'-')+' | Sup: '+(proj.sup!=null&&proj.sup!==''?proj.sup:'-')+'<br>Status:'+proj.status;t.style.display='block';};bar.onmousemove=function(e){const t=document.getElementById('tooltip');t.style.left=(e.clientX+14)+'px';t.style.top=(e.clientY-10)+'px';};bar.onmouseleave=function(){document.getElementById('tooltip').style.display='none';};cell.appendChild(bar);}row.appendChild(cell);});});});const cw=document.querySelector('.calendar-wrap');if(cw){void cw.offsetHeight;cw.scrollTop+=1;cw.scrollTop-=1;}}
+function toggleDropdown(menuId){
+  document.querySelectorAll('.multi-select-menu').forEach(m=>{if(m.id!==menuId)m.classList.remove('open');});
+  document.getElementById(menuId).classList.toggle('open');
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.multi-select')){document.querySelectorAll('.multi-select-menu').forEach(m=>m.classList.remove('open'));}
+});
+function onMultiCheck(cb, menuId, btnId, allLabel){
+  const menu=document.getElementById(menuId);
+  const boxes=[...menu.querySelectorAll('input[type=checkbox]')];
+  const allBox=boxes.find(b=>b.value==='ALL');
+  if(cb.value==='ALL'){
+    if(cb.checked){boxes.forEach(b=>{if(b!==allBox)b.checked=false;});}
+  } else {
+    if(cb.checked){allBox.checked=false;}
+    const anyChecked=boxes.some(b=>b!==allBox&&b.checked);
+    if(!anyChecked)allBox.checked=true;
+  }
+  updateMultiLabel(menuId,btnId,allLabel);
+  render();
+}
+function updateMultiLabel(menuId,btnId,allLabel){
+  const menu=document.getElementById(menuId);
+  const boxes=[...menu.querySelectorAll('input[type=checkbox]')];
+  const allBox=boxes.find(b=>b.value==='ALL');
+  const btn=document.getElementById(btnId);
+  if(!allBox||allBox.checked){btn.textContent=allLabel;return;}
+  const sel=boxes.filter(b=>b!==allBox&&b.checked).map(b=>b.value);
+  btn.textContent=sel.length?sel.join(', '):allLabel;
+}
+function getMultiValues(menuId){
+  const menu=document.getElementById(menuId);
+  const boxes=[...menu.querySelectorAll('input[type=checkbox]')];
+  const allBox=boxes.find(b=>b.value==='ALL');
+  if(!allBox||allBox.checked)return['ALL'];
+  const sel=boxes.filter(b=>b!==allBox&&b.checked).map(b=>b.value);
+  return sel.length?sel:['ALL'];
+}
+
+function toggleExportPanel(){
+  const panel=document.getElementById('exportPanel');
+  const isOpen=panel.style.display==='flex';
+  if(isOpen){panel.style.display='none';return;}
+  const from=new Date(viewStart);
+  const to=new Date(viewStart.getFullYear(), viewStart.getMonth()+2, 0);
+  document.getElementById('exportFrom').value=dkLocal(from);
+  document.getElementById('exportTo').value=dkLocal(to);
+  panel.style.display='flex';
+}
+function toARGB(hex){return 'FF'+String(hex||'888888').replace('#','').toUpperCase();}
+async function doExportExcel(){
+  const fromVal=document.getElementById('exportFrom').value;
+  const toVal=document.getElementById('exportTo').value;
+  if(!fromVal||!toVal){alert('Please select both From and To dates.');return;}
+  const rangeStart=new Date(fromVal+'T00:00:00');
+  const rangeEnd=new Date(toVal+'T00:00:00');
+  if(rangeEnd<rangeStart){alert('The To date must be on or after the From date.');return;}
+  const days=[];
+  for(let d=new Date(rangeStart);d<=rangeEnd;d.setDate(d.getDate()+1))days.push(new Date(d));
+  if(days.length>400){if(!confirm('That is a large date range ('+days.length+' days) and may take a while and produce a wide file. Continue?'))return;}
+
+  const selectedDivs=getMultiValues('divFilterMenu');
+  const selectedMgrs=getMultiValues('mgrFilterMenu');
+  const filterCatVal=document.getElementById('filterCat').value;
+  const activeDivs=selectedDivs.includes('ALL')?DIVISIONS:DIVISIONS.filter(d=>selectedDivs.includes(d));
+  const matchCat=p=>{if(filterCatVal==='ALL')return true;const isLT=/long[\s_]*term/i.test(p.cat||'');return filterCatVal==='LT'?isLT:!isLT;};
+  const matchMgr=p=>selectedMgrs.includes('ALL')||selectedMgrs.includes(p.ic);
+  const inRange=p=>p.e>=rangeStart&&p.s<=rangeEnd;
+
+  const wb=new ExcelJS.Workbook();
+  const ws=wb.addWorksheet('Calendar');
+  const fmtDate=d=>d.getDate()+' '+d.toLocaleString('default',{month:'short'})+' '+d.getFullYear();
+
+  ws.getColumn(1).width=42;
+  ws.getColumn(2).width=12;
+  for(let i=0;i<days.length;i++)ws.getColumn(i+3).width=3.5;
+
+  ws.mergeCells(1,1,1,days.length+2);
+  const titleCell=ws.getCell(1,1);
+  titleCell.value='Vibes Events - Project Calendar  ('+fmtDate(rangeStart)+' - '+fmtDate(rangeEnd)+')';
+  titleCell.font={bold:true,size:14,color:{argb:'FF1A1A2E'}};
+
+  ws.mergeCells(2,1,2,days.length+2);
+  const subCell=ws.getCell(2,1);
+  const divLabel=selectedDivs.includes('ALL')?'All Divisions':selectedDivs.join(', ');
+  const mgrLabel=selectedMgrs.includes('ALL')?'All Managers':selectedMgrs.join(', ');
+  const catLabel=filterCatVal==='ALL'?'All Categories':(filterCatVal==='LT'?'Long Term':'Others');
+  subCell.value='Divisions: '+divLabel+'   |   Managers: '+mgrLabel+'   |   Category: '+catLabel;
+  subCell.font={italic:true,size:10,color:{argb:'FF666666'}};
+
+  const headerRowIdx=4;
+  const headerRow=ws.getRow(headerRowIdx);
+  const hc1=headerRow.getCell(1);
+  hc1.value='Project / Incharge';
+  hc1.font={bold:true,color:{argb:'FFFFFFFF'}};
+  hc1.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1A2E'}};
+  const hc2=headerRow.getCell(2);
+  hc2.value='Division';
+  hc2.font={bold:true,color:{argb:'FFFFFFFF'}};
+  hc2.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1A2E'}};
+  hc2.alignment={horizontal:'center'};
+  days.forEach((d,i)=>{
+    const c=headerRow.getCell(i+3);
+    c.value=d.getDate();
+    const isWknd=(d.getDay()===0||d.getDay()===6);
+    c.font={bold:true,size:9,color:{argb:'FFFFFFFF'}};
+    c.fill={type:'pattern',pattern:'solid',fgColor:{argb:isWknd?'FF2D2D4E':'FF1A1A2E'}};
+    c.alignment={horizontal:'center'};
+  });
+  headerRow.height=18;
+
+  const monthRowIdx=5;
+  const monthRow=ws.getRow(monthRowIdx);
+  ws.mergeCells(monthRowIdx,1,monthRowIdx,2);
+  let curKey=null,startCol=3;
+  days.forEach((d,i)=>{
+    const key=d.getFullYear()+'-'+d.getMonth();
+    if(key!==curKey){
+      if(curKey!==null)ws.mergeCells(monthRowIdx,startCol,monthRowIdx,i+2);
+      curKey=key;startCol=i+3;
+      monthRow.getCell(i+3).value=d.toLocaleString('default',{month:'long',year:'numeric'});
+    }
+  });
+  ws.mergeCells(monthRowIdx,startCol,monthRowIdx,days.length+2);
+  monthRow.eachCell({includeEmpty:true},c=>{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFE8EAF0'}};c.font={bold:true,size:10,color:{argb:'FF333333'}};c.alignment={horizontal:'left'};});
+  monthRow.height=16;
+
+  let rIdx=monthRowIdx;
+  function addProjectRow(p){
+    rIdx++;
+    const row=ws.getRow(rIdx);
+    let label=p.name+' | '+(p.city||'')+(p.org?(' - '+p.org):'')+(p.pn?(' - P.N:'+p.pn):'');
+    label+='\n'+(p.ic||'-')+' | '+(p.assist||'-');
+    const c1=row.getCell(1);
+    c1.value=label;
+    c1.alignment={wrapText:true,vertical:'middle'};
+    c1.font={size:9};
+    const c2=row.getCell(2);
+    c2.value=p.div;
+    c2.alignment={horizontal:'center',vertical:'middle',wrapText:true};
+    c2.font={size:9,bold:true};
+    const argb=toARGB(COLORS[p.div]);
+    days.forEach((d,i)=>{
+      if(d>=p.s&&d<=p.e){
+        row.getCell(i+3).fill={type:'pattern',pattern:'solid',fgColor:{argb}};
+      }
+    });
+    row.height=28;
+  }
+
+  if(typeof viewMode!=='undefined'&&document.getElementById('viewMode').value==='SECTION'){
+    activeDivs.forEach(div=>{
+      const dp=projects.filter(p=>p.div===div&&inRange(p)&&matchCat(p)&&matchMgr(p)).sort((a,b)=>a.s-b.s);
+      if(!dp.length)return;
+      rIdx++;
+      const hRow=ws.getRow(rIdx);
+      ws.mergeCells(rIdx,1,rIdx,2);
+      hRow.getCell(1).value=div+' ('+dp.length+' projects)';
+      hRow.getCell(1).font={bold:true,size:11};
+      hRow.eachCell({includeEmpty:true},c=>{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF0F2F8'}};});
+      dp.forEach(addProjectRow);
+    });
+  } else {
+    let dp=[];
+    activeDivs.forEach(div=>{dp=dp.concat(projects.filter(p=>p.div===div&&inRange(p)&&matchCat(p)&&matchMgr(p)));});
+    dp.sort((a,b)=>a.s-b.s);
+    dp.forEach(addProjectRow);
+  }
+
+  ws.views=[{state:'frozen',xSplit:2,ySplit:monthRowIdx,topLeftCell:'C'+(monthRowIdx+1)}];
+
+  const buf=await wb.xlsx.writeBuffer();
+  const blob=new Blob([buf],{type:'application/octet-stream'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='Vibes_Calendar_'+fromVal+'_to_'+toVal+'.xlsx';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toggleExportPanel();
+}
+
+loadData();
+</script>
+</body></html>
