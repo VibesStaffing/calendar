@@ -199,14 +199,18 @@ async function doExportExcel(){
 
   ws.getColumn(1).width=42;
   ws.getColumn(2).width=12;
-  for(let i=0;i<days.length;i++)ws.getColumn(i+3).width=3.5;
+  ws.getColumn(3).width=16;
+  ws.getColumn(4).width=16;
+  ws.getColumn(5).width=8;
+  ws.getColumn(6).width=8;
+  for(let i=0;i<days.length;i++)ws.getColumn(i+7).width=3.5;
 
-  ws.mergeCells(1,1,1,days.length+2);
+  ws.mergeCells(1,1,1,days.length+6);
   const titleCell=ws.getCell(1,1);
   titleCell.value='Vibes Events - Project Calendar  ('+fmtDate(rangeStart)+' - '+fmtDate(rangeEnd)+')';
   titleCell.font={bold:true,size:14,color:{argb:'FF1A1A2E'}};
 
-  ws.mergeCells(2,1,2,days.length+2);
+  ws.mergeCells(2,1,2,days.length+6);
   const subCell=ws.getCell(2,1);
   const divLabel=selectedDivs.includes('ALL')?'All Divisions':selectedDivs.join(', ');
   const mgrLabel=selectedMgrs.includes('ALL')?'All Managers':selectedMgrs.join(', ');
@@ -226,29 +230,49 @@ async function doExportExcel(){
   hc2.font={bold:true,color:{argb:'FFFFFFFF'}};
   hc2.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1A2E'}};
   hc2.alignment={horizontal:'center'};
+  const hc3=headerRow.getCell(3);
+  hc3.value='Projects In-charge';
+  hc3.font={bold:true,color:{argb:'FFFFFFFF'}};
+  hc3.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1A2E'}};
+  hc3.alignment={horizontal:'center'};
+  const hc4=headerRow.getCell(4);
+  hc4.value='Project Assistant';
+  hc4.font={bold:true,color:{argb:'FFFFFFFF'}};
+  hc4.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1A2E'}};
+  hc4.alignment={horizontal:'center'};
+  const hc5=headerRow.getCell(5);
+  hc5.value='NO.Staff';
+  hc5.font={bold:true,color:{argb:'FFFFFFFF'}};
+  hc5.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1A2E'}};
+  hc5.alignment={horizontal:'center'};
+  const hc6=headerRow.getCell(6);
+  hc6.value='No.Sup';
+  hc6.font={bold:true,color:{argb:'FFFFFFFF'}};
+  hc6.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A1A2E'}};
+  hc6.alignment={horizontal:'center'};
   days.forEach((d,i)=>{
-    const c=headerRow.getCell(i+3);
-    c.value=d.getDate();
+    const c=headerRow.getCell(i+7);
+    c.value=d.getDate()+'\n'+d.toLocaleString('default',{weekday:'short'}).toUpperCase();
     const isWknd=(d.getDay()===0||d.getDay()===6);
     c.font={bold:true,size:9,color:{argb:'FFFFFFFF'}};
     c.fill={type:'pattern',pattern:'solid',fgColor:{argb:isWknd?'FF2D2D4E':'FF1A1A2E'}};
-    c.alignment={horizontal:'center'};
+    c.alignment={horizontal:'center',wrapText:true};
   });
-  headerRow.height=18;
+  headerRow.height=28;
 
   const monthRowIdx=5;
   const monthRow=ws.getRow(monthRowIdx);
-  ws.mergeCells(monthRowIdx,1,monthRowIdx,2);
-  let curKey=null,startCol=3;
+  ws.mergeCells(monthRowIdx,1,monthRowIdx,6);
+  let curKey=null,startCol=7;
   days.forEach((d,i)=>{
     const key=d.getFullYear()+'-'+d.getMonth();
     if(key!==curKey){
-      if(curKey!==null)ws.mergeCells(monthRowIdx,startCol,monthRowIdx,i+2);
-      curKey=key;startCol=i+3;
-      monthRow.getCell(i+3).value=d.toLocaleString('default',{month:'long',year:'numeric'});
+      if(curKey!==null)ws.mergeCells(monthRowIdx,startCol,monthRowIdx,i+6);
+      curKey=key;startCol=i+7;
+      monthRow.getCell(i+7).value=d.toLocaleString('default',{month:'long',year:'numeric'});
     }
   });
-  ws.mergeCells(monthRowIdx,startCol,monthRowIdx,days.length+2);
+  ws.mergeCells(monthRowIdx,startCol,monthRowIdx,days.length+6);
   monthRow.eachCell({includeEmpty:true},c=>{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFE8EAF0'}};c.font={bold:true,size:10,color:{argb:'FF333333'}};c.alignment={horizontal:'left'};});
   monthRow.height=16;
 
@@ -267,10 +291,26 @@ async function doExportExcel(){
     c2.value=p.div;
     c2.alignment={horizontal:'center',vertical:'middle',wrapText:true};
     c2.font={size:9,bold:true};
+    const c3=row.getCell(3);
+    c3.value=p.ic||'-';
+    c3.alignment={horizontal:'center',vertical:'middle',wrapText:true};
+    c3.font={size:9};
+    const c4=row.getCell(4);
+    c4.value=p.assist||'-';
+    c4.alignment={horizontal:'center',vertical:'middle',wrapText:true};
+    c4.font={size:9};
+    const c5=row.getCell(5);
+    c5.value=p.staff||0;
+    c5.alignment={horizontal:'center',vertical:'middle'};
+    c5.font={size:9};
+    const c6=row.getCell(6);
+    c6.value=p.sup||0;
+    c6.alignment={horizontal:'center',vertical:'middle'};
+    c6.font={size:9};
     const argb=toARGB(COLORS[p.div]);
     days.forEach((d,i)=>{
       if(d>=p.s&&d<=p.e){
-        row.getCell(i+3).fill={type:'pattern',pattern:'solid',fgColor:{argb}};
+        row.getCell(i+7).fill={type:'pattern',pattern:'solid',fgColor:{argb}};
       }
     });
     row.height=28;
@@ -282,7 +322,7 @@ async function doExportExcel(){
       if(!dp.length)return;
       rIdx++;
       const hRow=ws.getRow(rIdx);
-      ws.mergeCells(rIdx,1,rIdx,2);
+      ws.mergeCells(rIdx,1,rIdx,6);
       hRow.getCell(1).value=div+' ('+dp.length+' projects)';
       hRow.getCell(1).font={bold:true,size:11};
       hRow.eachCell({includeEmpty:true},c=>{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF0F2F8'}};});
@@ -295,7 +335,7 @@ async function doExportExcel(){
     dp.forEach(addProjectRow);
   }
 
-  ws.views=[{state:'frozen',xSplit:2,ySplit:monthRowIdx,topLeftCell:'C'+(monthRowIdx+1)}];
+  ws.views=[{state:'frozen',xSplit:6,ySplit:monthRowIdx,topLeftCell:'G'+(monthRowIdx+1)}];
 
   const buf=await wb.xlsx.writeBuffer();
   const blob=new Blob([buf],{type:'application/octet-stream'});
